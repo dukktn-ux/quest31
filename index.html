@@ -45,7 +45,6 @@
             text-align: center;
             margin-bottom: 2rem;
 
-            /* SVGフィルターによるランダム破れマスク */
             -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100%25' height='100%25'%3E%3Cdefs%3E%3Cfilter id='rough-edge' x='-20%25' y='-20%25' width='140%25' height='140%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.03 0.06' numOctaves='5' result='noise' /%3E%3CfeDisplacementMap in='SourceGraphic' in2='noise' scale='25' xChannelSelector='R' yChannelSelector='G' /%3E%3C/filter%3E%3C/defs%3E%3Crect width='100%25' height='100%25' fill='black' filter='url(%23rough-edge)' /%3E%3C/svg%3E");
             mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100%25' height='100%25'%3E%3Cdefs%3E%3Cfilter id='rough-edge' x='-20%25' y='-20%25' width='140%25' height='140%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.03 0.06' numOctaves='5' result='noise' /%3E%3CfeDisplacementMap in='SourceGraphic' in2='noise' scale='25' xChannelSelector='R' yChannelSelector='G' /%3E%3C/filter%3E%3C/defs%3E%3Crect width='100%25' height='100%25' fill='black' filter='url(%23rough-edge)' /%3E%3C/svg%3E");
             -webkit-mask-size: 100% 100%;
@@ -101,9 +100,9 @@
         }
 
         button {
-            padding: 15px 60px; background-color: var(--ancient-brown); color: #f2e3c9;
+            padding: 15px 40px; background-color: var(--ancient-brown); color: #f2e3c9;
             border: 3px double var(--ancient-gold); font-family: 'Noto Serif JP', serif;
-            font-weight: bold; font-size: 1.3rem; cursor: pointer; transition: 0.3s; letter-spacing: 8px;
+            font-weight: bold; font-size: 1.2rem; cursor: pointer; transition: 0.3s; letter-spacing: 4px;
         }
 
         button:hover { background-color: #2a1e1a; box-shadow: 0 4px 15px rgba(0,0,0,0.4); }
@@ -144,7 +143,7 @@
     </div>
     
     <div id="inputSection">
-        <label for="teamSelect">班を選択せよ</label>
+        <label id="teamLabel" for="teamSelect">班を選択せよ</label>
         <select id="teamSelect">
             <option value="">...</option>
             <option value="A">A 班</option>
@@ -154,17 +153,17 @@
             <option value="E">E 班</option>
         </select>
         <br>
-        <button id="answerBtn" onclick="openArchive()">ヒントを表示</button>
+        <button id="hintBtn" onclick="showHint()">ヒントを表示する</button>
     </div>
     
     <div id="message"></div>
 
     <div id="imageContainer">
-        <img id="displayImage" src="" alt="QUEST IMAGE">
+        <img id="displayImage" src="" alt="QUEST HINT">
     </div>
 
     <div id="saveNote">
-        この光景を記録（スクショ）しておくことを推奨する...
+        この光景を記録（保存）しておくことを推奨する...
     </div>
 </div>
 
@@ -173,52 +172,63 @@
 <script>
     const archiveData = {
         "A": {
-            "msg": "目に焼き付けよ。<br>ヒントは４つある。",
-            "img": "rocket.png"
+            "msg": "ヒント１：ロケット",
+            "img": "https://picsum.photos/id/10/600/400"
         },
         "B": {
-            "msg": "目に焼き付けよ。<br>ヒントは４つある。",
+            "msg": "ヒント１：インド",
             "img": "https://picsum.photos/id/20/600/400"
         },
         "C": {
-            "msg": "目に焼き付けよ。<br>ヒントは４つある。",
+            "msg": "ヒント１：本",
             "img": "https://picsum.photos/id/30/600/400"
         },
         "D": {
-            "msg": "目に焼き付けよ。<br>ヒントは４つある。",
-            "img": "https://picsum.photos/id/40/600/400"
+            "msg": "ヒント１：シラバス",
+1            "img": "https://picsum.photos/id/40/600/400"
         },
         "E": {
-            "msg": "目に焼き付けよ。<br>ヒントは４つある。",
+            "msg": "ヒント１：氷山",
             "img": "https://picsum.photos/id/50/600/400"
         }
     };
 
-    function openArchive() {
+    function showHint() {
         const team = document.getElementById('teamSelect').value;
         const img = document.getElementById('displayImage');
         const container = document.getElementById('imageContainer');
         const msg = document.getElementById('message');
         const saveNote = document.getElementById('saveNote');
+        
+        // 操作エリアの要素
+        const hintBtn = document.getElementById('hintBtn');
+        const teamSelect = document.getElementById('teamSelect');
+        const teamLabel = document.getElementById('teamLabel');
 
         if (team === "") {
             msg.textContent = "班が選択されていない。";
             msg.style.color = "#8b0000";
-            container.style.display = "none";
-            saveNote.style.display = "none";
             return;
         }
 
         const data = archiveData[team];
 
         if (data) {
+            // 画像とメッセージを表示
             img.src = data.img;
             container.style.display = "flex";
             msg.innerHTML = data.msg;
             msg.style.color = "#2e7d32"; 
             saveNote.style.display = "block";
             
-            // 画像が表示されたら、そこまでスムーズにスクロール
+            // --- 今回の重要変更点 ---
+            // ヒント表示後、ボタン・セレクトボックス・ラベルをすべて消去
+            hintBtn.style.display = "none";
+            teamSelect.style.display = "none";
+            teamLabel.style.display = "none";
+            // -----------------------
+
+            // 表示エリアまでスムーズにスクロール
             setTimeout(() => {
                 container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
             }, 100);
@@ -227,6 +237,4 @@
 </script>
 
 </body>
-
 </html>
-
